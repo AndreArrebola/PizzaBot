@@ -31,7 +31,7 @@ body {
 }
 
 .header {
-    background: #3385ff;
+    background: #d8661a;
     padding: 20px;
     color: #ffffff;
     font-size: 20px;
@@ -72,7 +72,7 @@ input[type="text"] {
 input[type="submit"] {
     height: 25px;
     border: 0;
-    background: #3385ff;
+    background: #d8661a;
     font-weight: 500;
     font-size: 17px;
     color: #ffffff;
@@ -104,7 +104,7 @@ input[type="submit"] {
     height: auto;
     padding: 10px;
     margin: 5px;
-    background-color: #3385ff;
+    background-color: #d8661a;
     color: #ffffff;
     border-radius: 10px;
     float: left;

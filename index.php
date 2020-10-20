@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exemplo de ChatBot</title>
+    <title>Pizzaria Bons do Pedaço</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -11,9 +11,9 @@
     <div class="container">
         <div class="chatbox">
             <div class="header">
-                <h4>ChatBot Tecnologia</h4>
+                <h4>Pizzaria Bons do Pedaço</h4>
                 <br>
-                <p>Faça perguntas como: linux; php; dns; etc.</p>
+                <p>Utilize nosso chat para fazer seu pedido.</p>
             </div>
 
             <div class="body" id="chatbody">
