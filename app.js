@@ -2,9 +2,12 @@ const btnSend = document.getElementById("btn");
 const chat = document.getElementById("chat");
 
 var state = "bemvindo";
+var endereco='a';
 var sabortemp;
 var tamanhotemp;
 var pagtemp;
+var numtemp;
+var endtemp;
 
 function checkstr(string, array){
     for(i=0;i<array.length;i++){
@@ -22,6 +25,16 @@ function checkstrindex(string, array){
     }
     return -1;
 }
+
+function getCEP(cep){
+    var Httpreq = new XMLHttpRequest(); // a new request
+  Httpreq.open("GET","https://viacep.com.br/ws/"+cep+"/json/",false);
+  Httpreq.send(null);
+  return Httpreq.responseText
+}
+
+
+
 function sendmessage(msg){
     const chatBody = document.querySelector(".scroller");
     const divUser = document.createElement("div");
@@ -29,6 +42,7 @@ function sendmessage(msg){
     divUser.textContent = chat.value;
     chatBody.append(divUser);
     divUser.scrollIntoView();
+    
 
 }
 function respondmessage(msg){
@@ -36,6 +50,7 @@ function respondmessage(msg){
     const divCpu = document.createElement("div");
     divCpu.className = "bot visible";
     divCpu.innerHTML = processmessage(msg);
+    
     setTimeout(() => {  
     chatBody.append(divCpu);
     divCpu.scrollIntoView();
@@ -94,7 +109,7 @@ function processmessage(msg){
     else if(state=="confirmacon"){
         if(msg=='sim'){
             state="perguntacep";
-            return 'Conta fechada! 😃 Vamos preparar a entrega agora. Qual seu CEP?'
+            return 'Conta fechada! 😃 Vamos preparar a entrega agora. Por favor digite seu CEP(sem adicionar traços).'
         }else if(msg=='nao'){
             state="sabor";
             return 'Vamos continuar então. Qual sabor deseja agora?'
@@ -102,13 +117,30 @@ function processmessage(msg){
         }
     }
     else if(state=="perguntacep"){
-        state='perguntanum';
-        return 'Qual seu número de residência?'
+        try{
+            var cepcode = msg.match(/\d+/g);
+            var jsonend = JSON.parse(getCEP(cepcode));
+            endtemp = jsonend.logradouro;
+            state='perguntanum';
+            return 'Qual seu número de residência?'
+        }catch{
+            return 'CEP Inválido. Tente novamente, por favor'
+        }
+        
+
+        
         
     }
     else if(state=="perguntanum"){
         state='confirmaend';
-        return 'Você mora no endereço (end)?'
+        
+                
+        numtemp = msg.match(/\d+/g);
+        endtemp = endtemp + ", " + numtemp;
+        return 'Seu endereço é ' +endtemp +'?';
+        
+        
+        
         
     }
     else if(state=="confirmaend"){
@@ -129,7 +161,7 @@ function processmessage(msg){
             pagtemp=pagamento[indextam];
             state="confirmfinal"
             
-            return 'Conta final <br> Pizzas pedidas: <br> Preço total: <br> Endereço de entrega: <br> Forma de Pagamento: <br><br>Podemos fechar?'
+            return `Conta final <br> Pizzas pedidas: <br> Preço total: <br> Endereço de entrega:${endtemp} <br> Forma de Pagamento:${pagtemp} <br><br>Podemos fechar?`
         }else{
             return 'Forma de pagamento inválida. Aceitamos somente pagamento em débito, crédito, dinheiro e cheque.'
         }
@@ -159,9 +191,9 @@ function processmessage(msg){
         return 'Qual pagamento deseja? Estamos aceitando pagamento em débito, crédito, dinheiro e cheque.'
     }
     else if (indexcor==7){
-        state="confirmfinal"
+        state="confirmfinal";
             
-        return 'Conta final <br> Pizzas pedidas: <br> Preço total: <br> Endereço de entrega: <br> Forma de Pagamento: <br><br>Podemos fechar?'
+        return `Conta final <br> Pizzas pedidas: <br> Preço total: <br> Endereço de entrega:${endtemp} <br> Forma de Pagamento:${pagtemp} <br><br>Podemos fechar?`
     }
     }
     
