@@ -1,13 +1,41 @@
 const btnSend = document.getElementById("btn");
 const chat = document.getElementById("chat");
 
+var cardapio;
+
+const photocss = 'width:100%;height:200px;display: inline-block;background: rgb(44, 32, 32);background-image: url(card.jpeg);background-position: center;cursor:pointer;background-size:100% ';
+
 var state = "bemvindo";
 var endereco='a';
 var sabortemp;
+var precotemp;
 var tamanhotemp;
 var pagtemp;
 var numtemp;
 var endtemp;
+
+var conta = [];
+
+function lerCardapio(cb){
+    var request = new XMLHttpRequest();
+    request.open('GET', './cardapio.js', true);
+    request.send(null);
+    request.onreadystatechange = function () {
+        if (request.readyState === 4 && request.status === 200) {
+            var type = request.getResponseHeader('Content-Type');
+
+                   try {
+                     cb(request.responseText);
+
+                   }catch(err) {
+                     cb(err);
+                   }
+        }
+    }
+}
+lerCardapio(function(object){
+    cardapio=JSON.parse(object);
+});
 
 function checkstr(string, array){
     for(i=0;i<array.length;i++){
@@ -25,12 +53,48 @@ function checkstrindex(string, array){
     }
     return -1;
 }
+function checkcardapio(string){
+    for(i=0;i<cardapio.length;i++){
+        if(string.indexOf(cardapio[i].Pizza.toLowerCase())!=-1){
+            return i;
+        }
+    }
+    return -1;
+}
+function getPizzaName(id){
+    try{
+        return cardapio[id].Pizza;
+    }
+    catch{
+        return '??';
+    }
+    
+}
+function getPizzaPrice(id){
+    try{
+        return cardapio[id].Preco;
+    }
+    catch{
+        return 0;
+    }
+    
+}
 
 function getCEP(cep){
-    var Httpreq = new XMLHttpRequest(); // a new request
+    var Httpreq = new XMLHttpRequest();
   Httpreq.open("GET","https://viacep.com.br/ws/"+cep+"/json/",false);
   Httpreq.send(null);
   return Httpreq.responseText
+}
+function listaConta(){
+    var lista='';
+    var custototal=0;
+    for(i=0;i<conta.length;i++){
+        lista = lista + conta[i].id + ' - ' +  conta[i].name + ' - ' + conta[i].price + '<br>';
+        custototal+=conta[i].price;
+    }
+    lista+='<br><b>Custo total:</b> R$' + custototal;
+    return lista
 }
 
 
@@ -50,6 +114,27 @@ function respondmessage(msg){
     const divCpu = document.createElement("div");
     divCpu.className = "bot visible";
     divCpu.innerHTML = processmessage(msg);
+    if(divCpu.innerHTML.indexOf('[cardapiodiv]')!=-1){
+        //divCpu.innerHTML+="<div class='photocontainer'> You are watching 5th object out of 100 </div>";
+        divCpu.innerHTML = divCpu.innerHTML.replace("[cardapiodiv]", "");
+        var elem = document.createElement('div');
+        elem.style.cssText = photocss;
+        //elem.className = 'photo';
+        elem.addEventListener("click", function() {
+            window.open('card.jpeg');
+         });
+        divCpu.appendChild(elem);
+    }
+    setTimeout(() => {  
+    chatBody.append(divCpu);
+    divCpu.scrollIntoView();
+    }, 600);
+}
+function saymessage(msg){
+    const chatBody = document.querySelector(".scroller");
+    const divCpu = document.createElement("div");
+    divCpu.className = "bot visible";
+    divCpu.innerHTML = msg;
     
     setTimeout(() => {  
     chatBody.append(divCpu);
@@ -59,19 +144,31 @@ function respondmessage(msg){
 function processmessage(msg){
     const saudacoes = ['oi', 'oie', 'ola', 'olá', 'bom dia', 'boa tarde', 'boa noite'];
     const pedido = ['fazer um pedido', 'pedir'];
-    if(state=="bemvindo"){
+    const cardapio = ['cardapio', 'cardápio'];
+    if(checkstr(msg, cardapio)){
+        return 'Aqui está nosso cardápio!<br>Clique na imagem abaixo para acessá-lo. <br><br>[cardapiodiv]'
+    }
+    else if(state=="bemvindo"){
         if(saudacoes.includes(msg)){
-            return 'Olá, seja bem vindo à Pizzaria Bons do Pedaço! 🍕'
-        }else if(checkstr(msg, pedido)){
+            return "<b>Olá, seja bem vindo à Pizzaria Bons do Pedaço!</b> 🍕<br>Fique à vontade para solicitar o cardápio ou solicitar um pedido."
+        }
+        else if(checkstr(msg, pedido)){
             state="sabor";
-            return 'Agradecemos a preferência! Qual sabor gostaria?'
+            return 'Agradecemos a preferência!😃 <br> Qual sabor gostaria? Você pode solicitar o cardápio a qualquer momento da conversa.'
         }
     }
     else if(state=="sabor"){
         
-        sabortemp=msg;
-        state="tamanho";
-        return 'Você pediu uma pizza de ' + sabortemp + '. Qual tamanho gostaria, Broto, Média, Grande ou Gigante?'
+        var pizzaid = checkcardapio(msg)
+        sabortemp = getPizzaName(pizzaid);
+        precotemp = getPizzaPrice(pizzaid);
+        if(pizzaid>=0){
+            state="tamanho";
+            return 'Você pediu uma pizza de ' + sabortemp + '. Qual tamanho gostaria, Broto, Média, Grande ou Gigante?'
+        }else{
+            return 'Pizza Inválida. Consulte nosso cardápio para saber as pizzas disponíveis.'
+        }
+        
     }
     else if(state=="tamanho"){
         const tamanhos=['broto', 'média', 'grande', 'gigante'];
@@ -81,7 +178,7 @@ function processmessage(msg){
             tamanhotemp=tamanhos[indextam];
             state="confirmar"
             
-            return 'Você pediu uma pizza de ' + sabortemp + ', tamanho ' + tamanhotemp + '. Posso confirmar?'
+            return 'Você pediu uma pizza de ' + sabortemp + ', tamanho ' + tamanhotemp + '. Esta pizza custará ' + precotemp + ', posso confirmar?'
         }else{
             return 'Desculpe, não temos este tamanho. Temos pizzas de tamanho Broto, Média, Grande ou Gigante.'
         }
@@ -91,7 +188,8 @@ function processmessage(msg){
     else if(state=="confirmar"){
         if(msg=='sim'){
             state="confirmaped";
-            return 'Pedido Confirmado! 😃 Sua conta no momento: <br> (lista)<br>Deseja adicionar mais pizzas ao seu pedido?'
+            conta.push({id:conta.length+1, name: sabortemp, price: precotemp});
+            return 'Pedido Confirmado! 😃 <br><br><b>Sua conta no momento:</b> <br>' + listaConta()+'<br>Deseja adicionar mais pizzas ao seu pedido?'
         }else if(msg=='nao'){
             state="sabor";
             return 'Certo, vamos tentar novamente. Qual sabor deseja?'
@@ -103,7 +201,7 @@ function processmessage(msg){
             return 'Certo, qual sabor gostaria agora?'
         }else if(msg=='nao'){
             state="confirmacon";
-            return 'Deseja fechar a conta? Pizzas pedidas até o momento: <br> (lista)'
+            return 'Deseja fechar a conta? Pizzas pedidas até o momento: <br> ' + listaConta()
         }
     }
     else if(state=="confirmacon"){
@@ -161,7 +259,7 @@ function processmessage(msg){
             pagtemp=pagamento[indextam];
             state="confirmfinal"
             
-            return `Conta final <br> Pizzas pedidas: <br> Preço total: <br> Endereço de entrega:${endtemp} <br> Forma de Pagamento:${pagtemp} <br><br>Podemos fechar?`
+            return `<b>Conta final</b> <br><br> <b>Pizzas pedidas:</b> <br>`+ listaConta()+` <br><b>Endereço de entrega:</b>${endtemp} <br> <b>Forma de Pagamento:</b>${pagtemp} <br><br>Podemos fechar?`
         }else{
             return 'Forma de pagamento inválida. Aceitamos somente pagamento em débito, crédito, dinheiro e cheque.'
         }
@@ -205,10 +303,13 @@ btnSend.addEventListener("click", (e) => {
     if (chat.value == "") {} else {
         //getMessage(chat.value);
         sendmessage(chat.value);
+
         
         
         respondmessage(chat.value.toLowerCase());
+        //saymessage(cardapio);
         
         chat.value = "";
     }
 });
+saymessage("<b>Olá, seja bem vindo à Pizzaria Bons do Pedaço!</b> 🍕<br>Fique à vontade para solicitar o cardápio ou solicitar um pedido.");
