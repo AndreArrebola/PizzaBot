@@ -8,17 +8,23 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
     font-size: 16px;
     line-height: 16px;
+    
 }
 
 .container {
-    width: 90vw;
+    width: 100vw;
     height: 100vh;
     margin: 0 auto;
+    background-image: url('background.jpeg');
+    background-size:100%;
+    background-position:center;
     position: relative;
+    overflow: auto;
+    
 }
 
 .chatbox {
-    width: 50%;
+    width: 45%;
     height: 475px;
     position: absolute;
     top: 0;
@@ -29,12 +35,37 @@ body {
     background: rgb(44, 32, 32);
     border-radius: 10px;
 }
+.inputbox{
+    width:100%;
+    display:block;
+    background: rgb(44, 32, 32);
+    
+}
 
 .header {
     background: #d8661a;
-    padding: 20px;
+    padding: 14px;
     color: #ffffff;
-    font-size: 20px;
+    font-size: 30px;
+    
+    
+    
+}
+.headerstatus{
+    font-size: 15px;
+}
+.avatar{
+    display: inline-block;
+    height:60px;
+    width:60px;
+    
+    background-image:url('pizza-icon.png');
+    background-size:contain;
+}
+.nickname{
+    position:absolute;
+   top:5%;
+   left:80px;
 }
 .photo{
     width:80%;
@@ -69,21 +100,31 @@ body {
 
 input {
     height: 50px;
-    width: 100%;
+    width: 92%;
+    float:left;
 }
 
 input[type="text"] {
     padding: 0 10px;
+    border-radius: 10px;
+    
 }
 
 input[type="submit"] {
-    height: 25px;
+    height: 50px;
     border: 0;
     background: #d8661a;
+    background-image:url('send-button.png');
+    background-size:50% 50%;
+    background-position:center;
+    background-repeat:no-repeat;
+    border-radius: 10px;
     font-weight: 500;
     font-size: 17px;
     color: #ffffff;
     cursor: pointer;
+    float:right;
+    width:8%;
 }
 
 .visible {

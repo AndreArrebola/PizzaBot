@@ -79,6 +79,22 @@ function getPizzaPrice(id){
     }
     
 }
+function setSizePrice(indextam, price){
+    switch(indextam){
+        case 0:
+            return price*0.5;
+            break;
+        case 1:
+            return price;
+            break;
+        case 2:
+            return price*1.5;
+            break;
+        case 3:
+            return price*2;
+            break;
+    }
+}
 
 function getCEP(cep){
     var Httpreq = new XMLHttpRequest();
@@ -90,10 +106,11 @@ function listaConta(){
     var lista='';
     var custototal=0;
     for(i=0;i<conta.length;i++){
-        lista = lista + conta[i].id + ' - ' +  conta[i].name + ' - ' + conta[i].price + '<br>';
+        lista = lista + conta[i].id + ' - ' +  conta[i].name + ' - R$' + conta[i].price.toFixed(2) + '<br>';
         custototal+=conta[i].price;
     }
-    lista+='<br><b>Custo total:</b> R$' + custototal;
+    
+    lista+='<br><b>Custo total:</b> R$' + custototal.toFixed(2);
     return lista
 }
 
@@ -150,7 +167,7 @@ function processmessage(msg){
     }
     else if(state=="bemvindo"){
         if(saudacoes.includes(msg)){
-            return "<b>Olá, seja bem vindo à Pizzaria Bons do Pedaço!</b> 🍕<br>Fique à vontade para solicitar o cardápio ou solicitar um pedido."
+            return "Olá, seja bem vindo!"
         }
         else if(checkstr(msg, pedido)){
             state="sabor";
@@ -176,9 +193,11 @@ function processmessage(msg){
         
         if(indextam>=0){
             tamanhotemp=tamanhos[indextam];
-            state="confirmar"
+            precotemp = setSizePrice(indextam, precotemp);
+            precotemp = parseFloat(precotemp.toFixed(2));
+            state="confirmar";
             
-            return 'Você pediu uma pizza de ' + sabortemp + ', tamanho ' + tamanhotemp + '. Esta pizza custará ' + precotemp + ', posso confirmar?'
+            return 'Uma pizza ' + sabortemp + ' de tamanho ' + tamanhotemp + ' custará <b>R$' + precotemp.toFixed(2) + '</b>. <br>Podemos confirmar?'
         }else{
             return 'Desculpe, não temos este tamanho. Temos pizzas de tamanho Broto, Média, Grande ou Gigante.'
         }
@@ -267,7 +286,7 @@ function processmessage(msg){
     else if(state=="confirmfinal"){
         if(msg=='sim'){
             state="bemvindo";
-            return 'Conta fechada. Faremos as pizzas e enviaremos um motoboy assim que possível! A estimativa de tempo é 30 minutos. <br> A Pizzaria Bons do Pedaço agradece sua preferência!'
+            return '<b>Conta fechada!</b> <br><br>Faremos as pizzas e enviaremos um motoboy assim que possível! A estimativa de tempo é 40 minutos. <br><br> <b>A Pizzaria Bons do Pedaço agradece sua preferência!</b>'
         }else if(msg=='nao'){
             state="corrigir";
             return 'Então, o que deseja fazer? Pedir mais uma pizza, corrigir endereço ou alterar a forma de pagamento?'
