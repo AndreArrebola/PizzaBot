@@ -16,7 +16,51 @@ var endtemp;
 
 var conta = [];
 
+function sendmessage(msg){
+    const chatBody = document.querySelector(".scroller");
+    const divUser = document.createElement("div");
+    divUser.className = "me visible";
+    divUser.textContent = chat.value;
+    chatBody.append(divUser);
+    divUser.scrollIntoView();
+    
+
+}
+function respondmessage(msg){
+    const chatBody = document.querySelector(".scroller");
+    const divCpu = document.createElement("div");
+    divCpu.className = "bot visible";
+    divCpu.innerHTML = processmessage(msg);
+    if(divCpu.innerHTML.indexOf('[cardapiodiv]')!=-1){
+        //divCpu.innerHTML+="<div class='photocontainer'> You are watching 5th object out of 100 </div>";
+        divCpu.innerHTML = divCpu.innerHTML.replace("[cardapiodiv]", "");
+        var elem = document.createElement('div');
+        elem.style.cssText = photocss;
+        //elem.className = 'photo';
+        elem.addEventListener("click", function() {
+            window.open('card.jpeg');
+         });
+        divCpu.appendChild(elem);
+    }
+    setTimeout(() => {  
+    chatBody.append(divCpu);
+    divCpu.scrollIntoView();
+    }, 600);
+}
+function saymessage(msg){
+    const chatBody = document.querySelector(".scroller");
+    const divCpu = document.createElement("div");
+    divCpu.className = "bot visible";
+    divCpu.innerHTML = msg;
+    
+    setTimeout(() => {  
+    chatBody.append(divCpu);
+    divCpu.scrollIntoView();
+    }, 600);
+}
+
 function lerCardapio(cb){
+    
     var request = new XMLHttpRequest();
     request.open('GET', './cardapio.js', true);
     request.send(null);
@@ -33,6 +77,7 @@ function lerCardapio(cb){
         }
     }
 }
+
 lerCardapio(function(object){
     cardapio=JSON.parse(object);
 });
@@ -54,11 +99,15 @@ function checkstrindex(string, array){
     return -1;
 }
 function checkcardapio(string){
+    try{
     for(i=0;i<cardapio.length;i++){
         if(string.indexOf(cardapio[i].Pizza.toLowerCase())!=-1){
             return i;
         }
     }
+}catch{
+    saymessage("Não foi possível acessar o cardápio. <br> Para que o chat funcione corretamente ele deve estar hospedado em um servidor ou utilizando programas como o XAMPP.");
+}
     return -1;
 }
 function getPizzaName(id){
@@ -116,48 +165,7 @@ function listaConta(){
 
 
 
-function sendmessage(msg){
-    const chatBody = document.querySelector(".scroller");
-    const divUser = document.createElement("div");
-    divUser.className = "me visible";
-    divUser.textContent = chat.value;
-    chatBody.append(divUser);
-    divUser.scrollIntoView();
-    
 
-}
-function respondmessage(msg){
-    const chatBody = document.querySelector(".scroller");
-    const divCpu = document.createElement("div");
-    divCpu.className = "bot visible";
-    divCpu.innerHTML = processmessage(msg);
-    if(divCpu.innerHTML.indexOf('[cardapiodiv]')!=-1){
-        //divCpu.innerHTML+="<div class='photocontainer'> You are watching 5th object out of 100 </div>";
-        divCpu.innerHTML = divCpu.innerHTML.replace("[cardapiodiv]", "");
-        var elem = document.createElement('div');
-        elem.style.cssText = photocss;
-        //elem.className = 'photo';
-        elem.addEventListener("click", function() {
-            window.open('card.jpeg');
-         });
-        divCpu.appendChild(elem);
-    }
-    setTimeout(() => {  
-    chatBody.append(divCpu);
-    divCpu.scrollIntoView();
-    }, 600);
-}
-function saymessage(msg){
-    const chatBody = document.querySelector(".scroller");
-    const divCpu = document.createElement("div");
-    divCpu.className = "bot visible";
-    divCpu.innerHTML = msg;
-    
-    setTimeout(() => {  
-    chatBody.append(divCpu);
-    divCpu.scrollIntoView();
-    }, 600);
-}
 function processmessage(msg){
     const saudacoes = ['oi', 'oie', 'ola', 'olá', 'bom dia', 'boa tarde', 'boa noite'];
     const pedido = ['fazer um pedido', 'pedir'];
